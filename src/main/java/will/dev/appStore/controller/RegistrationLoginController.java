@@ -15,7 +15,7 @@ import will.dev.appStore.entites.User;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "v1")
+@RequestMapping(path = "userAuth")
 public class RegistrationLoginController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
