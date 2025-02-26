@@ -24,7 +24,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf ->csrf.disable())
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/","/userAuth/login", "/userAuth/register","/user/{id}").permitAll()
+                        auth.requestMatchers("/","/userAuth/login", "/userAuth/register","/user/{id}","/category/{id}").permitAll()
                                 .anyRequest().authenticated())
                 /*.oauth2Login(oauth2Login -> oauth2Login // Nouvelle approche pour configurer OAuth2
                         //.loginPage("/login") // Page de connexion personnalisée (optionnelle)
