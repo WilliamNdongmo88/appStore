@@ -29,8 +29,8 @@ public class CategoryService {
     }
 
     public Category lire(Long id) {
-        Optional<Category> optionalClient =  this.categoryRepository.findById(id);
-        return optionalClient.orElseThrow(() -> new EntityNotFoundException("Aucune categorie n'existe avec cette id"));
+        Optional<Category> optionalCategory =  this.categoryRepository.findById(id);
+        return optionalCategory.orElseThrow(() -> new EntityNotFoundException("Aucune categorie n'existe avec cette id"));
     }
 
     /*public Category lireOuCreer(Category categoryAcreer) {
@@ -44,7 +44,7 @@ public class CategoryService {
     public void modifier(Long id, Category category) {
         Category categoryDansLaBD = this.lire(id);//Recupération de la category dns la bd
         if (categoryDansLaBD.getId() == category.getId() && categoryDansLaBD.getId() == id){
-            //Ajout des informations recu au clientDansLaBD
+            //Ajout des informations recu
             categoryDansLaBD.setTitle(category.getTitle());
             categoryDansLaBD.setAddedBy(category.getAddedBy());
             this.categoryRepository.save(categoryDansLaBD);
