@@ -1,6 +1,6 @@
 package will.dev.appStore.dto;
 
 public record ErrorEntity(
-        String code,
+        int code,
         String message) {
 }

@@ -33,25 +33,26 @@ public class CategoryService {
         return optionalCategory.orElseThrow(() -> new EntityNotFoundException("Aucune categorie n'existe avec cette id"));
     }
 
-    /*public Category lireOuCreer(Category categoryAcreer) {
-        Category categoryDansLaBD = this.categoryRepository.findByTitle(categoryAcreer.getTitle());
-        if(categoryDansLaBD == null){
-            categoryDansLaBD = this.categoryRepository.save(categoryAcreer);
-        }
-        return categoryDansLaBD;S
-    }*/
+    // Update
+    public Category updateCategory(Long id, Category categoryDetails) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
 
-    public void modifier(Long id, Category category) {
-        Category categoryDansLaBD = this.lire(id);//Recupération de la category dns la bd
-        if (categoryDansLaBD.getId() == category.getId() && categoryDansLaBD.getId() == id){
-            //Ajout des informations recu
-            categoryDansLaBD.setTitle(category.getTitle());
-            categoryDansLaBD.setAddedBy(category.getAddedBy());
-            this.categoryRepository.save(categoryDansLaBD);
-        }
+        category.setAddedBy(categoryDetails.getAddedBy());
+        category.setTitle(categoryDetails.getTitle());
+        category.setSlug(categoryDetails.getSlug());
+        category.setDescription(categoryDetails.getDescription());
+        category.setDeletedAt(categoryDetails.getDeletedAt());
+        category.setDeletedBy(categoryDetails.getDeletedBy());
+
+        return categoryRepository.save(category);
     }
 
-    public void supprimer(Long id) {
-        this.categoryRepository.deleteById(id);
+    // Delete
+    public void deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
+
+        categoryRepository.delete(category);
     }
 }

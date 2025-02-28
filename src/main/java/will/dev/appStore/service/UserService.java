@@ -1,5 +1,6 @@
 package will.dev.appStore.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +12,6 @@ import will.dev.appStore.repository.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -34,24 +34,44 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUser(long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent() && user.get().getId() == id){
-            return user.get();
-        }else {
-            return null;
-        }
-
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.orElseThrow(()-> new EntityNotFoundException("User not found with id " + id));
     }
 
-    public void modifier(int id, User user) {
-        User userDansLaBD = this.getUser(id);//Recupération du user dans la bd
-        if (Objects.equals(userDansLaBD.getId(), user.getId()) && userDansLaBD.getId() == id){
-            //Ajout des informations recu au userDansLaBD
-            userDansLaBD.setUsername(user.getUsername());
-            userDansLaBD.setFirstName(user.getFirstName());
-            userDansLaBD.setLastName(user.getLastName());
-            userDansLaBD.setRole(user.getRole());
-            this.userRepository.save(userDansLaBD);
-        }
+    public User modifier(Long id, User userDetails) {
+        User userDansLaBD = this.userRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("User not found with id " + id));
+
+        userDansLaBD.setUsername(userDetails.getUsername());
+        userDansLaBD.setFirstName(userDetails.getFirstName());
+        userDansLaBD.setOtherNames(userDetails.getOtherNames());
+        userDansLaBD.setLastName(userDetails.getLastName());
+        userDansLaBD.setUserImagePath(userDetails.getUserImagePath());
+        userDansLaBD.setEnterpriseName(userDetails.getEnterpriseName());
+        userDansLaBD.setEmail(userDetails.getEmail());
+        userDansLaBD.setPhone(userDetails.getPhone());
+        userDansLaBD.setPassword(userDetails.getPassword());
+        userDansLaBD.setRole(userDetails.getRole());
+        userDansLaBD.setEmailVerified(userDetails.getEmailVerified());
+        userDansLaBD.setAuthToken(userDetails.getAuthToken());
+        userDansLaBD.setEmailVerifyToken(userDetails.getEmailVerifyToken());
+        userDansLaBD.setPasswordResetToken(userDetails.getPasswordResetToken());
+        userDansLaBD.setVerified(userDetails.isVerified());
+        userDansLaBD.setVerifiedBy(userDetails.getVerifiedBy());
+        userDansLaBD.setOnline(userDetails.isOnline());
+        userDansLaBD.setShowOnlineStatus(userDetails.isShowOnlineStatus());
+        userDansLaBD.setLastTimeActive(userDetails.getLastTimeActive());
+        userDansLaBD.setActive(userDetails.isActive());
+        userDansLaBD.setDeletedAt(userDetails.getDeletedAt());
+
+        return userRepository.save(userDansLaBD);
+    }
+
+    // Delete
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+        userRepository.delete(user);
     }
 }

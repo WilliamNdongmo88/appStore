@@ -33,7 +33,7 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(path = "{id}", consumes = APPLICATION_JSON_VALUE)
-    public void modifier(@PathVariable int id,@RequestBody User user){
+    public void modifier(@PathVariable Long id,@RequestBody User user){
         this.userService.modifier(id, user);
     }
 

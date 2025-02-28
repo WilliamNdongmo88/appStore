@@ -37,12 +37,12 @@ public class SubCategoryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(path = "{id}", consumes = APPLICATION_JSON_VALUE)
     public void modifier(@PathVariable Long id,@RequestBody SubCategory category){
-        this.subCategoryService.modifier(id, category);
+        this.subCategoryService.updateSubCategory(id, category);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(path = "{id}")
     public void supprimer(@PathVariable Long id){
-        this.subCategoryService.supprimer(id);
+        this.subCategoryService.deleteSubCategory(id);
     }
 }

@@ -33,19 +33,27 @@ public class SubCategoryService {
         return optionalSubCategory.orElseThrow(() -> new EntityNotFoundException("Aucune sous-categorie n'existe avec cette id"));
     }
 
-    public void modifier(Long id, SubCategory subCategory) {
-        SubCategory subCategoryDansLaBD = this.lire(id);//Recupération de la subCategory dns la bd
-        if (subCategoryDansLaBD.getId() == subCategory.getId() && subCategoryDansLaBD.getId() == id){
-            //Ajout des informations recu
-            subCategoryDansLaBD.setTitle(subCategory.getTitle());
-            //subCategoryDansLaBD.setAddedBy(subCategory.getAddedBy());
-            subCategoryDansLaBD.setCategory(subCategory.getCategory());
-            subCategoryDansLaBD.setDescription(subCategory.getDescription());
-            this.subCategoryRepository.save(subCategoryDansLaBD);
-        }
+    // Update
+    public SubCategory updateSubCategory(Long id, SubCategory subCategoryDetails) {
+        SubCategory subCategory = subCategoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("SubCategory not found with id " + id));
+
+        subCategory.setAddedBy(subCategoryDetails.getAddedBy());
+        subCategory.setCategory(subCategoryDetails.getCategory());
+        subCategory.setTitle(subCategoryDetails.getTitle());
+        subCategory.setSlug(subCategoryDetails.getSlug());
+        subCategory.setDescription(subCategoryDetails.getDescription());
+        subCategory.setDeletedAt(subCategoryDetails.getDeletedAt());
+        subCategory.setDeletedBy(subCategoryDetails.getDeletedBy());
+
+        return subCategoryRepository.save(subCategory);
     }
 
-    public void supprimer(Long id) {
-        this.subCategoryRepository.deleteById(id);
+    // Delete
+    public void deleteSubCategory(Long id) {
+        SubCategory subCategory = subCategoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("SubCategory not found with id " + id));
+
+        subCategoryRepository.delete(subCategory);
     }
 }

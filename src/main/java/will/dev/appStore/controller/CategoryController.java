@@ -18,7 +18,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping("creer")
     public ResponseEntity<String> creerCategory(@RequestBody Category category){
         String message = this.categoryService.creerCategory(category);
         return ResponseEntity.ok(message);
@@ -37,12 +37,12 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(path = "{id}", consumes = APPLICATION_JSON_VALUE)
     public void modifier(@PathVariable Long id,@RequestBody Category category){
-        this.categoryService.modifier(id, category);
+        this.categoryService.updateCategory(id, category);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(path = "{id}")
     public void supprimer(@PathVariable Long id){
-        this.categoryService.supprimer(id);
+        this.categoryService.deleteCategory(id);
     }
 }
