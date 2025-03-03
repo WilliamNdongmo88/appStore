@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "sub_categories")
@@ -22,6 +23,9 @@ public class SubCategory {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    //@OneToMany(mappedBy = "subCategory")
+    //private List<Product> products;
 
     @Column(nullable = false)
     private String title;

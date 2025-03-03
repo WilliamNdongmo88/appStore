@@ -8,6 +8,7 @@ import will.dev.appStore.repository.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,23 @@ public class ProductService {
         return optionalSubCategory.orElseThrow(() -> new EntityNotFoundException("Aucun produit n'existe avec cette identifiant"));
     }
 
+    public List<Product> getProductsBySubCategory(String title) {
+        List<Product> productDansBD = productRepository.findBySubCategoryTitle(title);
+        System.out.println("subCategoryDansBD : " + productDansBD);
+        if (productDansBD.isEmpty()){
+            throw new EntityNotFoundException("Aucun produit n'existe avec ce nom : " + title);
+        }
+        return productDansBD;
+    }
+
+    public List<Product> getProductTitlesStartingWith(String prefix) {
+        List<Product> productTitles = productRepository.findByTitleStartingWith(prefix);
+        if (productTitles == null) {
+            throw new EntityNotFoundException("Aucune produit n'existe avec un nom commençant par : " + prefix);
+        }
+        return productTitles;
+    }
+
     // Update
     public Product updateProduct(Long id, Product productDetails) {
         Product product = productRepository.findById(id)
@@ -41,6 +59,7 @@ public class ProductService {
         product.setAddedBy(productDetails.getAddedBy());
         product.setBrand(productDetails.getBrand());
         product.setDiscount(productDetails.getDiscount());
+        product.setSubCategory(productDetails.getSubCategory());
         product.setTitle(productDetails.getTitle());
         product.setSlug(productDetails.getSlug());
         product.setDescription(productDetails.getDescription());

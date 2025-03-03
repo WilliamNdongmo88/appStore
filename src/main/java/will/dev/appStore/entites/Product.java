@@ -20,6 +20,10 @@ public class Product {
     private User addedBy;
 
     @ManyToOne
+    @JoinColumn(name="subCategory_id")
+    private SubCategory subCategory;
+
+    @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
 

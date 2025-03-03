@@ -1,6 +1,8 @@
 package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import will.dev.appStore.entites.CategoryProduct;
 import will.dev.appStore.entites.CategoryProduct;
 import will.dev.appStore.repository.CategoryProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryProductService {
 
-    @Autowired
-    private CategoryProductRepository categoryProductRepository;
+    private final CategoryProductRepository categoryProductRepository;
+    //private final
 
     // Create
     public CategoryProduct createCategoryProduct(CategoryProduct categoryProduct) {
