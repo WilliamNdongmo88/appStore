@@ -29,7 +29,9 @@ public class SecurityConfig {
                                         "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
                                         "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
                                         "/product-variation/{id}","/product-variation-value/{id}","/product-reviews/{id}",
-                                        "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}","/product-images/{id}").permitAll()
+                                        "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}",
+                                        "/product-images/{id}","/orders/{id}","/order-items/{id}"
+                                ).permitAll()
                                 .anyRequest().authenticated())
                 /*.oauth2Login(oauth2Login -> oauth2Login // Nouvelle approche pour configurer OAuth2
                         //.loginPage("/login") // Page de connexion personnalisée (optionnelle)
