@@ -1,8 +1,11 @@
 package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import will.dev.appStore.entites.Order;
-import will.dev.appStore.repository.OrderRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import will.dev.appStore.dto.OrderRequest;
+import will.dev.appStore.entites.*;
+import will.dev.appStore.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,15 +13,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final DeliveryModeRepository deliveryModeRepository;
+    private final PaymentModeRepository paymentModeRepository;
 
     // Create
-    public Order createOrder(Order order) {
-        return orderRepository.save(order);
-    }
+    public Order createOrder(Order order) {return orderRepository.save(order);}
+
 
     // Read (Get All)
     public List<Order> getAllOrders() {
