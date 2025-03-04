@@ -27,8 +27,9 @@ public class SearchCategoryProduct {
         return this.productService.getProductsBySubCategory(subCategoryTitle);
     }
 
-    @GetMapping("/prefix/subcategories/{subCategoryPrefix}/products")
-    public List<Product> searchProductsByPrefix(@PathVariable String subCategoryPrefix) {
-        return this.productService.getProductTitlesStartingWith(subCategoryPrefix);
+    //@GetMapping("/prefix/subcategories/{subCategoryPrefix}/products")
+    @GetMapping("/search")
+    public List<Product> searchProductsByPrefix(@RequestParam String prefix) {
+        return this.productService.getProductTitlesStartingWith(prefix);
     }
 }

@@ -30,7 +30,7 @@ public class SecurityConfig {
                                         "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
                                         "/product-variation/{id}","/product-variation-value/{id}","/product-reviews/{id}",
                                         "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}",
-                                        "/product-images/{id}","/orders/{id}","/order-items/{id}",
+                                        "/product-images/{id}","/orders/{id}","/order-items/{id}","/recherche/search",
                                         "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}",
                                         "/product-images/{id}","/recherche/categories/{categoryTitle}/subcategories",
                                         "/recherche/subcategories/{subCategoryTitle}/products",
