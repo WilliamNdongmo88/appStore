@@ -35,7 +35,9 @@ public class SecurityConfig {
                                         "/product-images/{id}","/recherche/categories/{categoryTitle}/subcategories",
                                         "/recherche/subcategories/{subCategoryTitle}/products",
                                         "/product/subcategories/{subCategoryTitle}/products",
-                                        "/recherche/prefix/subcategories/{subCategoryPrefix}/products"
+                                        "/recherche/prefix/subcategories/{subCategoryPrefix}/products",
+                                        "/product-images/{id}","/orders/{id}","/order-items/{id}","/delivery-modes/{id}",
+                                "/payment-modes/{id}","/payments/{id}","/addresses/{id}"
                                 ).permitAll()
                                 .anyRequest().authenticated())
                 /*.oauth2Login(oauth2Login -> oauth2Login // Nouvelle approche pour configurer OAuth2
