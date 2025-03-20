@@ -1,20 +1,25 @@
 package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import will.dev.appStore.dto.OrderItemDTO;
 import will.dev.appStore.entites.Order;
 import will.dev.appStore.entites.OrderItem;
+import will.dev.appStore.mapper.OrderItemDtoMapper;
 import will.dev.appStore.repository.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class OrderItemService {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderItemDtoMapper orderItemDtoMapper;
 
     // Create
     public OrderItem createOrderItem(OrderItem orderItem) {
@@ -22,14 +27,25 @@ public class OrderItemService {
     }
 
     // Read (Get All)
-    public List<OrderItem> getAllOrderItems() {
-        return orderItemRepository.findAll();
+    public Stream<OrderItemDTO> getAllOrderItems() {
+        return orderItemRepository.findAll().stream().map(orderItemDtoMapper);
     }
 
     // Read (Get By Id)
-    public OrderItem getOrderItemById(Long id) {
-        Optional<OrderItem> optionalorderItem =  this.orderItemRepository.findById(id);
-        return optionalorderItem.orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cet identifiant"));
+    public OrderItemDTO getOrderItemById(Long id) {
+        return orderItemRepository.findById(id)
+                .map(orderItemDtoMapper).orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cet identifiant"));
+    }
+    // Read (Get List)
+    public Stream<OrderItemDTO> getListOrderItemById(Long id) {
+        List<OrderItemDTO> orderItemDtoList = this.orderItemRepository.findOrderItemByOrderId(id)
+                .stream()
+                .map(orderItemDtoMapper)
+                .toList();
+        if (orderItemDtoList.isEmpty()){
+            throw new EntityNotFoundException("Liste vide");
+        }
+        return orderItemDtoList.stream();
     }
 
     // Update
@@ -55,4 +71,5 @@ public class OrderItemService {
 
         orderItemRepository.delete(orderItem);
     }
+
 }

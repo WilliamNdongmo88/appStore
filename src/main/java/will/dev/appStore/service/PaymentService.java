@@ -1,20 +1,25 @@
 package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import will.dev.appStore.dto.PaymentDTO;
 import will.dev.appStore.entites.DeliveryMode;
 import will.dev.appStore.entites.Payment;
+import will.dev.appStore.mapper.PaymentDtoMapper;
 import will.dev.appStore.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
+    private final PaymentDtoMapper paymentDtoMapper;
 
     // Create
     public Payment createPayment(Payment payment) {
@@ -22,14 +27,13 @@ public class PaymentService {
     }
 
     // Read (Get All)
-    public List<Payment> getAllPayments() {
-        return paymentRepository.findAll();
+    public Stream<PaymentDTO> getAllPayments() {
+        return paymentRepository.findAll().stream().map(paymentDtoMapper);
     }
 
     // Read (Get By Id)
-    public Payment getPaymentById(Long id) {
-        Optional<Payment> optionaldeliveryMode =  this.paymentRepository.findById(id);
-        return optionaldeliveryMode.orElseThrow(() -> new EntityNotFoundException("Aucun Payment n'existe avec cet identifiant"));
+    public PaymentDTO getPaymentById(Long id) {
+        return paymentRepository.findById(id).map(paymentDtoMapper).orElseThrow(() -> new EntityNotFoundException("Aucun Payment n'existe avec cet identifiant"));
     }
 
     // Update

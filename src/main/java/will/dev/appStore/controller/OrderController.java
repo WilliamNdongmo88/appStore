@@ -1,14 +1,19 @@
 package will.dev.appStore.controller;
 
 import lombok.RequiredArgsConstructor;
+import will.dev.appStore.dto.OrderDTO;
+import will.dev.appStore.dto.OrderItemDTO;
 import will.dev.appStore.dto.OrderRequest;
 import will.dev.appStore.entites.Order;
+import will.dev.appStore.entites.OrderItem;
+import will.dev.appStore.service.OrderItemService;
 import will.dev.appStore.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,6 +21,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderItemService orderItemService;
 
     // Create
     @PostMapping("creer")
@@ -25,20 +31,26 @@ public class OrderController {
 
     // Read (Get All)
     @GetMapping("all_order")
-    public List<Order> getAllOrders() {
+    public Stream<OrderDTO> getAllOrders() {
         return orderService.getAllOrders();
     }
 
     // Read (Get By Id)
     @GetMapping("/{id}")
-    public Order getOrderById(@PathVariable Long id) {
+    public OrderDTO getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }
 
     // Read (Get By Order Key)
     @GetMapping("/order-key/{orderKey}")
-    public Order getOrderByOrderKey(@PathVariable String orderKey) {
+    public OrderDTO getOrderByOrderKey(@PathVariable String orderKey) {
         return orderService.getOrderByOrderKey(orderKey);
+    }
+
+    //Read (Get OrderItem By Id)
+    @GetMapping("/{orderId}/items")
+    public Stream<OrderItemDTO> getListOrderItemById(@PathVariable Long orderId){
+        return orderItemService.getListOrderItemById(orderId);
     }
 
     // Update

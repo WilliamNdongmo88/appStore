@@ -7,17 +7,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import will.dev.appStore.dto.UserDTO;
 import will.dev.appStore.entites.User;
+import will.dev.appStore.mapper.UserDtoMapper;
 import will.dev.appStore.repository.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final UserDtoMapper userDtoMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -29,14 +33,21 @@ public class UserService implements UserDetailsService {
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
     }
 
-    public List<User> getAllUser() {
-        return userRepository.findAll();
+    public Stream<UserDTO> getAllUser() {
+        return userRepository.findAll()
+                .stream().map(userDtoMapper);
     }
 
-    public User getUser(long id) {
+    /*public User getUser(long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElseThrow(()-> new EntityNotFoundException("User not found with id " + id));
+    }*/
+    public UserDTO getUser(long id) {
+        return userRepository.findById(id)
+                .map(userDtoMapper)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
     }
+
 
     public User modifier(Long id, User userDetails) {
         User userDansLaBD = this.userRepository.findById(id)

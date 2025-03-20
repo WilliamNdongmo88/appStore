@@ -3,44 +3,42 @@ package will.dev.appStore.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import will.dev.appStore.dto.OrderDTO;
 import will.dev.appStore.dto.OrderRequest;
 import will.dev.appStore.entites.*;
+import will.dev.appStore.mapper.OrderDtoMapper;
 import will.dev.appStore.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final DeliveryModeRepository deliveryModeRepository;
-    private final PaymentModeRepository paymentModeRepository;
+    private final OrderDtoMapper orderDtoMapper;
 
     // Create
     public Order createOrder(Order order) {return orderRepository.save(order);}
 
 
     // Read (Get All)
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public Stream<OrderDTO> getAllOrders() {
+        return orderRepository.findAll().stream().map(orderDtoMapper);
     }
 
     // Read (Get By Id)
-    public Order getOrderById(Long id) {
-        Optional<Order> optionalorder =  this.orderRepository.findById(id);
-        return optionalorder.orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cet identifiant"));
+    public OrderDTO getOrderById(Long id) {
+        return orderRepository.findById(id).map(orderDtoMapper).orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cet identifiant"));
     }
 
     // Read (Get By Order Key)
-    public Order getOrderByOrderKey(String orderKey) {
-        Optional<Order> optionalorder =  this.orderRepository.findByOrderKey(orderKey);
-        return optionalorder.orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cette clé"));
+    public OrderDTO getOrderByOrderKey(String orderKey) {
+        return orderRepository.findByOrderKey(orderKey).map(orderDtoMapper).orElseThrow(() -> new EntityNotFoundException("Aucune commande n'existe avec cette clé"));
     }
 
     // Update

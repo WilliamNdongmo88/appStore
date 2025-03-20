@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
+import will.dev.appStore.dto.UserDTO;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.service.UserService;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -24,10 +26,10 @@ public class UserController {
 
     @RequestMapping(path = "all_user")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<User> getAllUser(){return this.userService.getAllUser();}
+    public Stream<UserDTO> getAllUser(){return this.userService.getAllUser();}
 
     @GetMapping(path = "{id}",produces = APPLICATION_JSON_VALUE)
-    public User getUser(@PathVariable int id){
+    public UserDTO getUser(@PathVariable int id){
         return this.userService.getUser(id);
     }
 
