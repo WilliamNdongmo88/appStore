@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: resources-appStore
+    container_name: res-appStore
     image: mariadb
     restart: always
     environment:

@@ -3,17 +3,21 @@ package will.dev.appStore.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import will.dev.appStore.dto.ProductDTO;
 import will.dev.appStore.entites.Product;
+import will.dev.appStore.mapper.ProductDtoMapper;
 import will.dev.appStore.repository.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductDtoMapper productDtoMapper;
 
     public String creerProduct(Product product){
         Product productDansBD = this.productRepository.findByTitle(product.getTitle());
@@ -25,13 +29,12 @@ public class ProductService {
         }
     }
 
-    public List<Product> rechercher(){
-        return  this.productRepository.findAll();
+    public Stream<ProductDTO> rechercher(){
+        return  this.productRepository.findAll().stream().map(productDtoMapper);
     }
 
-    public Product lire(Long id) {
-        Optional<Product> optionalSubCategory =  this.productRepository.findById(id);
-        return optionalSubCategory.orElseThrow(() -> new EntityNotFoundException("Aucun produit n'existe avec cette identifiant"));
+    public ProductDTO lire(Long id) {
+        return productRepository.findById(id).map(productDtoMapper).orElseThrow(() -> new EntityNotFoundException("Aucun produit n'existe avec cette identifiant"));
     }
 
     public List<Product> getProductsBySubCategory(String title) {

@@ -1,5 +1,6 @@
 package will.dev.appStore.controller;
 
+import will.dev.appStore.dto.PaymentDTO;
 import will.dev.appStore.entites.Payment;
 import will.dev.appStore.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("payments")
@@ -23,13 +25,13 @@ public class PaymentController {
 
     // Read (Get All)
     @GetMapping("all_payments")
-    public List<Payment> getAllPayments() {
+    public Stream<PaymentDTO> getAllPayments() {
         return paymentService.getAllPayments();
     }
 
     // Read (Get By Id)
     @GetMapping("/{id}")
-    public Payment getPaymentById(@PathVariable Long id) {
+    public PaymentDTO getPaymentById(@PathVariable Long id) {
         return paymentService.getPaymentById(id);
     }
 

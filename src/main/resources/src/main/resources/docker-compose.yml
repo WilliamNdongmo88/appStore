@@ -1,0 +1,17 @@
+services:
+  db:
+    container_name: resources-appStore
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: appStore
+    ports:
+      - 3307:3306
+
+  adminer:
+    container_name: appStore_adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080

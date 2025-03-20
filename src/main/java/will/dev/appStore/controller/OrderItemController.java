@@ -1,5 +1,6 @@
 package will.dev.appStore.controller;
 
+import will.dev.appStore.dto.OrderItemDTO;
 import will.dev.appStore.entites.OrderItem;
 import will.dev.appStore.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("order-items")
@@ -23,13 +25,13 @@ public class OrderItemController {
 
     // Read (Get All)
     @GetMapping("all_orderItem")
-    public List<OrderItem> getAllOrderItems() {
+    public Stream<OrderItemDTO> getAllOrderItems() {
         return orderItemService.getAllOrderItems();
     }
 
     // Read (Get By Id)
     @GetMapping("/{id}")
-    public OrderItem getOrderItemById(@PathVariable Long id) {
+    public OrderItemDTO getOrderItemById(@PathVariable Long id) {
         return orderItemService.getOrderItemById(id);
     }
 

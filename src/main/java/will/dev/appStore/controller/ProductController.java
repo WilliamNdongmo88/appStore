@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import will.dev.appStore.dto.ProductDTO;
 import will.dev.appStore.entites.Product;
 import will.dev.appStore.service.ProductService;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -25,12 +27,12 @@ public class ProductController {
     }
 
     @GetMapping(path = "all_product", produces = APPLICATION_JSON_VALUE)
-    public List<Product> rechercher(){
+    public Stream<ProductDTO> rechercher(){
         return this.productService.rechercher();
     }
 
     @GetMapping(path = "{id}", produces = APPLICATION_JSON_VALUE)
-    public Product lire(@PathVariable Long id){
+    public ProductDTO lire(@PathVariable Long id){
         return this.productService.lire(id);
     }
 
