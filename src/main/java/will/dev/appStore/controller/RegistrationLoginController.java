@@ -1,17 +1,23 @@
 package will.dev.appStore.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import will.dev.appStore.dto.AuthentificationDto;
 import will.dev.appStore.repository.UserRepository;
 import will.dev.appStore.entites.User;
+import will.dev.appStore.service.JwtService;
+import will.dev.appStore.service.ValidationService;
+
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,30 +25,42 @@ import will.dev.appStore.entites.User;
 public class RegistrationLoginController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ValidationService validationService;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping(path = "register")
     public ResponseEntity<?> userRegister(@RequestBody User user){
-        if (userRepository.findByUsername(user.getUsername()) != null){
+        User userDansBD = this.userRepository.findByUsername(user.getUsername());
+        if (userDansBD != null){
             return ResponseEntity.badRequest().body("Username already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        this.validationService.enregistrer(user);
         return ResponseEntity.ok(userRepository.save(user));
     }
 
     @PostMapping(path = "login")
-    public ResponseEntity<?> userLogin(@RequestBody User user) {
+    public Map<String, String> userLogin(@RequestBody AuthentificationDto authDto) {
         try {
             // Authentification de l'utilisateur
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authDto.username(), authDto.password()));
 
+            System.out.println("username: " + authenticate);
             // Récupération de l'utilisateur à partir de la base de données
-            User authenticatedUser = userRepository.findByUsername(user.getUsername());
-
-            // Retourner le rôle
-            return ResponseEntity.ok("Login Successful. Role: " + authenticatedUser.getRole());
+            Optional<User> authenticatedUser = this.userRepository.findByEmail(authDto.username());
+            System.out.println("username: " + authenticatedUser.get().getUsername());
+            if (authenticatedUser.get().isActive()){
+                authenticatedUser.get().setOnline(true);
+                this.userRepository.save(authenticatedUser.get());
+                // Retourner le token
+                return this.jwtService.generate(authDto.username());
+            }else {
+                throw new RuntimeException("Veuillez activer votre compte avant de vous connecter");
+            }
         }catch(Exception ex){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            throw new RuntimeException("Invalid username or password");
         }
     }
 }

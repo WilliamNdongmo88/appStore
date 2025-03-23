@@ -2,18 +2,26 @@ package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import will.dev.appStore.controller.Validation;
 import will.dev.appStore.dto.UserDTO;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.mapper.UserDtoMapper;
 import will.dev.appStore.repository.UserRepository;
+import will.dev.appStore.repository.ValidationRepository;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -22,15 +30,13 @@ import java.util.stream.Stream;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserDtoMapper userDtoMapper;
+    private final ValidationService validationService;
+    private final ValidationRepository validationRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if(user == null){
-            throw new UsernameNotFoundException("User not found with username" + username);
-        }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
+        return this.userRepository.findByEmail(username)
+                .orElseThrow(()-> new UsernameNotFoundException("Aucun utilisateur ne correspond a cet identifiant"));
     }
 
     public Stream<UserDTO> getAllUser() {
@@ -76,6 +82,22 @@ public class UserService implements UserDetailsService {
         userDansLaBD.setDeletedAt(userDetails.getDeletedAt());
 
         return userRepository.save(userDansLaBD);
+    }
+
+    //Activation
+    public ResponseEntity<?> activation(Map<String, String> activation) {
+        Validation validation = this.validationService.lireCode(activation.get("code"));
+        if (Instant.now().isAfter(validation.getExpiration())) {
+            throw new RuntimeException("Votre code a expiré");
+        }
+        User userActiver = this.userRepository.findById(validation.getUser().getId()).orElseThrow(() -> new RuntimeException("Utilisateur inconnu"));
+        userActiver.setActive(true);
+        Instant creation = Instant.now();
+        validation.setActivation(creation);
+        validation.setValidationDay(LocalDate.now(ZoneId.systemDefault()));
+        this.validationRepository.save(validation);
+        this.userRepository.save(userActiver);
+        return ResponseEntity.ok("### Compte activé ### ->" + userActiver.isActive());
     }
 
     // Delete
