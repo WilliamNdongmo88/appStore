@@ -2,10 +2,13 @@ package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import will.dev.appStore.entites.CategoryProduct;
 import will.dev.appStore.entites.Product;
 import will.dev.appStore.entites.SubCategory;
+import will.dev.appStore.entites.User;
 import will.dev.appStore.repository.CategoryRepository;
 import will.dev.appStore.repository.ProductRepository;
 import will.dev.appStore.repository.SubCategoryRepository;
@@ -21,13 +24,15 @@ public class SubCategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
 
-    public String creerSubCategory(SubCategory subCategory){
+    public ResponseEntity<?> creerSubCategory(SubCategory subCategory){
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        subCategory.setAddedBy(userConnected);
         SubCategory categoryDansBD = this.subCategoryRepository.findByTitle(subCategory.getTitle());
         if (categoryDansBD ==  null ){
             this.subCategoryRepository.save(subCategory);
-            return "La sous-Catégorie '" + subCategory.getTitle() + "' créée avec succès.";
+            return ResponseEntity.ok("La sous-Catégorie '" + subCategory.getTitle() + "' créée avec succès.");
         }else {
-            return "La sous-Catégorie '" + subCategory.getTitle() + "' existe déjà.";
+            throw new RuntimeException ("La sous-Catégorie '" + subCategory.getTitle() + "' existe déjà.");
         }
     }
 
@@ -51,10 +56,11 @@ public class SubCategoryService {
 
     // Update
     public SubCategory updateSubCategory(Long id, SubCategory subCategoryDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        subCategoryDetails.setUpdateBy(userConnected);
         SubCategory subCategory = subCategoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SubCategory not found with id " + id));
 
-        subCategory.setAddedBy(subCategoryDetails.getAddedBy());
         subCategory.setCategory(subCategoryDetails.getCategory());
         subCategory.setTitle(subCategoryDetails.getTitle());
         subCategory.setSlug(subCategoryDetails.getSlug());
@@ -66,7 +72,9 @@ public class SubCategoryService {
     }
 
     // Delete
-    public void deleteSubCategory(Long id) {
+    public void deleteSubCategory(Long id,SubCategory subCategoryDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        subCategoryDetails.setDeletedBy(userConnected);
         SubCategory subCategory = subCategoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SubCategory not found with id " + id));
 
