@@ -7,9 +7,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import will.dev.appStore.service.UserService;
 
 
@@ -18,6 +20,7 @@ import will.dev.appStore.service.UserService;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserService userService;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -39,7 +42,12 @@ public class SecurityConfig {
                                         "/product-images/{id}","/orders/order-key/{orderKey}","/order-item/{id}","/delivery-modes/{id}",
                                 "/payment-modes/{id}","/payments/{id}","/addresses/{id}","/orders/{orderId}/items"
                                 ).permitAll()
-                                .anyRequest().authenticated())
+                                .anyRequest().authenticated()
+                )
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 /*.oauth2Login(oauth2Login -> oauth2Login // Nouvelle approche pour configurer OAuth2
                         //.loginPage("/login") // Page de connexion personnalisée (optionnelle)
                         .defaultSuccessUrl("/home") // URL de redirection après une connexion réussie

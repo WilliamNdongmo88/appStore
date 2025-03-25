@@ -2,8 +2,12 @@ package will.dev.appStore.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.function.EntityResponse;
 import will.dev.appStore.entites.Category;
+import will.dev.appStore.entites.User;
 import will.dev.appStore.repository.CategoryRepository;
 
 import java.util.List;
@@ -14,13 +18,16 @@ import java.util.Optional;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public String creerCategory(Category category){
+    //Créer category
+    public ResponseEntity<?> creerCategory(Category category){
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        category.setAddedBy(userConnected);
         Category categoryDansBD = this.categoryRepository.findByTitle(category.getTitle());
         if (categoryDansBD ==  null ){
             this.categoryRepository.save(category);
-            return "Catégorie '" + category.getTitle() + "' créée avec succès.";
+            return ResponseEntity.ok("Catégorie '" + category.getTitle() + "' créée avec succès.");
         }else {
-            return "La catégorie '" + category.getTitle() + "' existe déjà.";
+            throw new RuntimeException("La catégorie '" + category.getTitle() + "' existe déjà.") ;
         }
     }
 
@@ -35,10 +42,12 @@ public class CategoryService {
 
     // Update
     public Category updateCategory(Long id, Category categoryDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        categoryDetails.setUpdateBy(userConnected);
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
 
-        category.setAddedBy(categoryDetails.getAddedBy());
+        category.setUpdateBy(categoryDetails.getUpdateBy());
         category.setTitle(categoryDetails.getTitle());
         category.setSlug(categoryDetails.getSlug());
         category.setDescription(categoryDetails.getDescription());
@@ -49,7 +58,9 @@ public class CategoryService {
     }
 
     // Delete
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Long id, Category categoryDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        categoryDetails.setDeletedBy(userConnected);
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
 

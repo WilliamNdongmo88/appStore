@@ -19,6 +19,10 @@ public class Category {
     @JoinColumn(name = "added_by")
     private User addedBy;
 
+    @ManyToOne
+    @JoinColumn(name = "update_by")
+    private User updateBy;
+
     @Column(nullable = false)
     private String title;
 

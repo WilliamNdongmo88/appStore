@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -56,6 +57,8 @@ public class UserService implements UserDetailsService {
 
 
     public User modifier(Long id, User userDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userDetails.setVerifiedBy(userConnected);
         User userDansLaBD = this.userRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("User not found with id " + id));
 
@@ -74,7 +77,7 @@ public class UserService implements UserDetailsService {
         userDansLaBD.setEmailVerifyToken(userDetails.getEmailVerifyToken());
         userDansLaBD.setPasswordResetToken(userDetails.getPasswordResetToken());
         userDansLaBD.setVerified(userDetails.isVerified());
-        userDansLaBD.setVerifiedBy(userDetails.getVerifiedBy());
+        //userDansLaBD.setVerifiedBy(userDetails.getVerifiedBy());
         userDansLaBD.setOnline(userDetails.isOnline());
         userDansLaBD.setShowOnlineStatus(userDetails.isShowOnlineStatus());
         userDansLaBD.setLastTimeActive(userDetails.getLastTimeActive());
@@ -101,7 +104,9 @@ public class UserService implements UserDetailsService {
     }
 
     // Delete
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id,User userDetails) {
+        User userConnected = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userDetails.setVerifiedBy(userConnected);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id " + id));
 

@@ -19,9 +19,8 @@ public class CategoryController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("creer")
-    public ResponseEntity<String> creerCategory(@RequestBody Category category){
-        String message = this.categoryService.creerCategory(category);
-        return ResponseEntity.ok(message);
+    public ResponseEntity<?> creerCategory(@RequestBody Category category){
+        return this.categoryService.creerCategory(category);
     }
 
     @GetMapping(path = "all_category", produces = APPLICATION_JSON_VALUE)
@@ -42,7 +41,7 @@ public class CategoryController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(path = "{id}")
-    public void supprimer(@PathVariable Long id){
-        this.categoryService.deleteCategory(id);
+    public void supprimer(@PathVariable Long id, @RequestBody Category category){
+        this.categoryService.deleteCategory(id, category);
     }
 }

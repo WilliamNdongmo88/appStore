@@ -21,6 +21,10 @@ public class SubCategory {
     private User addedBy;
 
     @ManyToOne
+    @JoinColumn(name = "update_by")
+    private User updateBy;
+
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 

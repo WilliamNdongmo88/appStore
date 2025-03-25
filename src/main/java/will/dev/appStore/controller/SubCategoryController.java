@@ -19,9 +19,8 @@ public class SubCategoryController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "creer")
-    public ResponseEntity<String> creerSubCategory(@RequestBody SubCategory subCategory){
-        String message = this.subCategoryService.creerSubCategory(subCategory);
-        return ResponseEntity.ok(message);
+    public ResponseEntity<?> creerSubCategory(@RequestBody SubCategory subCategory){
+        return this.subCategoryService.creerSubCategory(subCategory);
     }
 
     @GetMapping(path = "all_subCategory", produces = APPLICATION_JSON_VALUE)
@@ -42,7 +41,7 @@ public class SubCategoryController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @DeleteMapping(path = "{id}")
-    public void supprimer(@PathVariable Long id){
-        this.subCategoryService.deleteSubCategory(id);
+    public void supprimer(@PathVariable Long id,SubCategory subCategory){
+        this.subCategoryService.deleteSubCategory(id, subCategory);
     }
 }
