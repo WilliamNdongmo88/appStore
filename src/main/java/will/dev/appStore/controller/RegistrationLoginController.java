@@ -63,4 +63,9 @@ public class RegistrationLoginController {
             throw new RuntimeException("Invalid username or password");
         }
     }
+
+    @PostMapping("deconnexion")
+    public void deconnexion(){
+        this.jwtService.deconnexion();
+    }
 }

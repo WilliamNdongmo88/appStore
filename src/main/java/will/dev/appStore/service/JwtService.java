@@ -5,25 +5,58 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import will.dev.appStore.entites.Jwt;
 import will.dev.appStore.entites.User;
+import will.dev.appStore.repository.JwtRepository;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static will.dev.appStore.configuration.KeyGeneratorUtil.generateEncryptionKey;
+
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private final String ENCRYPTION_KEY = "9710e6844f0bb2a4aa13608d1f207a15fb9f35c602582ac6ba3525daceba966d";
+    public static final String BEARER = "Bearer";
+    //private final String ENCRYPTION_KEY = "9710e6844f0bb2a4aa13608d1f207a15fb9f35c602582ac6ba3525daceba966d";
+    private final String ENCRYPTION_KEY = generateEncryptionKey(32);
     private final UserService userService;
+    private final JwtRepository jwtRepository;
 
     public Map<String, String> generate(String username) {
         User user = (User) this.userService.loadUserByUsername(username);
         System.out.println("User : " + user);
-        return this.generateJwt(user);
+        this.desableTokens(user);
+        Map<String, String> jwtMap = this.generateJwt(user);
+        Jwt jwt = Jwt
+                .builder()
+                .valeur(jwtMap.get(BEARER))
+                .user(user)
+                .desactive(false)
+                .expire(false)
+                .build();
+        this.jwtRepository.save(jwt);// Save token inside the table Jwt into the data base
+        return jwtMap;
+    }
+
+    private void desableTokens(User user) {
+        final List<Jwt> jwtList = this.jwtRepository.findUser(user.getEmail())
+                .filter(jwt -> jwt.getUser() != null) // Évite les valeurs null
+                .peek(jwt ->{
+                            jwt.setDesactive(true);
+                            jwt.setExpire(true);
+                        }
+                ).collect(Collectors.toList());
+        this.jwtRepository.saveAll(jwtList);
     }
 
     private Map<String, String> generateJwt(User user) {
@@ -40,7 +73,7 @@ public class JwtService {
                 .claims(claims)
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
-        return Map.of("Bearer", bearer);
+        return Map.of(BEARER, bearer);
     }
 
     private Key getKey(){
@@ -73,5 +106,18 @@ public class JwtService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public Jwt tokenByValue(String token) {
+        return this.jwtRepository.findByValeur(token).orElseThrow(()-> new RuntimeException("Token inconnu"));
+    }
+
+    public void deconnexion() {
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Jwt jwt = this.jwtRepository.findUserValidToken(user.getEmail(), false, false)
+                .orElseThrow(()-> new RuntimeException("Token invalid ou inconnu"));
+        jwt.setExpire(true);
+        jwt.setDesactive(true);
+        this.jwtRepository.save(jwt);
     }
 }
