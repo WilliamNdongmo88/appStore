@@ -7,6 +7,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import will.dev.appStore.entites.Jwt;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static will.dev.appStore.configuration.KeyGeneratorUtil.generateEncryptionKey;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -119,5 +122,16 @@ public class JwtService {
         jwt.setExpire(true);
         jwt.setDesactive(true);
         this.jwtRepository.save(jwt);
+    }
+
+    @Scheduled(cron = "0 */1 * * * *")
+    public void removeUselessTokens(){
+        List<Jwt> tokens = this.jwtRepository.deleteAllByExpireAndDesactive(true, true);
+        if (!tokens.isEmpty()){
+            this.jwtRepository.deleteAll(tokens);
+            log.info("{} tokens deleted", tokens.size());
+        }else {
+            log.info("No tokens to deleted for the moment");
+        }
     }
 }

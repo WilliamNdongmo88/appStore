@@ -42,7 +42,6 @@ public class JwtFilter extends OncePerRequestFilter {
             System.out.println("Username extrait: " + username);
             System.out.println("Token expiré ? " + isTokenExpred);
         }
-
         if (!isTokenExpred
                 //&& username != null
                 && tokenDansBd.getUser().getEmail().equals(username)
