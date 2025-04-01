@@ -1,8 +1,7 @@
-package will.dev.appStore.controller;
+package will.dev.appStore.entites;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import will.dev.appStore.entites.User;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,8 +17,8 @@ public class Validation {
     private Instant expiration;
     private Instant activation;
     private String code;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)// +
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH})
+    @JoinColumn(name = "user_id")
     private User user;
 
     // Nouveau champ pour stocker uniquement le jour

@@ -3,14 +3,13 @@ package will.dev.appStore.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import will.dev.appStore.controller.Validation;
+import will.dev.appStore.entites.Validation;
 import will.dev.appStore.dto.UserDTO;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.mapper.UserDtoMapper;
@@ -20,10 +19,7 @@ import will.dev.appStore.repository.ValidationRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -33,6 +29,7 @@ public class UserService implements UserDetailsService {
     private final UserDtoMapper userDtoMapper;
     private final ValidationService validationService;
     private final ValidationRepository validationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -111,5 +108,21 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("User not found with id " + id));
 
         userRepository.delete(user);
+    }
+
+    // Modifier Password
+    public void modifiedPassword(Map<String, String> param) {
+        User user = (User) this.loadUserByUsername(param.get("email"));
+        this.validationService.enregistrer(user);
+    }
+
+    public void newPassword(Map<String, String> param) {
+        User user = (User) this.loadUserByUsername(param.get("email"));
+        Validation validation = this.validationService.lireCode(param.get("code"));
+        if (validation.getUser().getEmail().equals(user.getEmail())){
+            String mdpCrypte = this.passwordEncoder.encode(param.get("password"));
+            user.setPassword(mdpCrypte);
+            this.userRepository.save(user);
+        }
     }
 }

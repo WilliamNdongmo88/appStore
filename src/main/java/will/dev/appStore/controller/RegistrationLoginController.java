@@ -14,6 +14,7 @@ import will.dev.appStore.dto.AuthentificationDto;
 import will.dev.appStore.repository.UserRepository;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.service.JwtService;
+import will.dev.appStore.service.UserService;
 import will.dev.appStore.service.ValidationService;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ public class RegistrationLoginController {
     private final PasswordEncoder passwordEncoder;
     private final ValidationService validationService;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
     private final JwtService jwtService;
 
     @PostMapping(path = "register")
@@ -38,6 +40,24 @@ public class RegistrationLoginController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.validationService.enregistrer(user);
         return ResponseEntity.ok(userRepository.save(user));
+    }
+
+    //Activation
+    @PostMapping("activation")
+    public ResponseEntity<?> activation(@RequestBody Map<String, String> activation){
+        return this.userService.activation(activation);
+    }
+
+    //Modifier Password
+    @PostMapping("modified-password")
+    public void modifiedPassword(@RequestBody Map<String, String> param){
+        this.userService.modifiedPassword(param);
+    }
+
+    //New Password
+    @PostMapping("new-password")
+    public void newPassword(@RequestBody Map<String, String> param){
+        this.userService.newPassword(param);
     }
 
     @PostMapping(path = "login")

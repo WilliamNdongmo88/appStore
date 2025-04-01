@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import will.dev.appStore.controller.Validation;
+import will.dev.appStore.entites.Validation;
 
 @Service
 @RequiredArgsConstructor

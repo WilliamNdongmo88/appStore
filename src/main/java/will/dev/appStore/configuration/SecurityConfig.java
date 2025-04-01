@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,8 +25,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
                 .csrf(csrf ->csrf.disable())
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/","/userAuth/login", "/userAuth/register","/product-unit/{id}",
+                .authorizeHttpRequests(auth -> auth
+                        /*.requestMatchers("/","/userAuth/login","/product-unit/{id}",
                                         "/user/{id}","/category/{id}","/subCategory/{id}","/categoryProduct/{id}",
                                         "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
                                         "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
@@ -41,7 +40,12 @@ public class SecurityConfig {
                                         "/recherche/prefix/subcategories/{subCategoryPrefix}/products",
                                         "/product-images/{id}","/orders/order-key/{orderKey}","/order-item/{id}","/delivery-modes/{id}",
                                 "/payment-modes/{id}","/payments/{id}","/addresses/{id}","/orders/{orderId}/items"
-                                ).permitAll()
+                                ).permitAll()*/
+                        .requestMatchers("/userAuth/register").permitAll()
+                        .requestMatchers("/userAuth/login").permitAll()
+                        .requestMatchers("/userAuth/activation").permitAll()
+                        .requestMatchers("/userAuth/modified-password").permitAll()
+                        .requestMatchers("/userAuth/new-password").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
@@ -53,11 +57,6 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/home") // URL de redirection après une connexion réussie
                 )*/
                 .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
