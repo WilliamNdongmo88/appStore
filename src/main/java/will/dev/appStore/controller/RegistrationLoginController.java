@@ -84,6 +84,12 @@ public class RegistrationLoginController {
         }
     }
 
+    //Refresh Token
+    @PostMapping("refresh-token")
+    public Map<String, String> refreshToken(@RequestBody Map<String, String> refreh){
+        return this.jwtService.refreshToken(refreh);
+    }
+
     @PostMapping("deconnexion")
     public void deconnexion(){
         this.jwtService.deconnexion();

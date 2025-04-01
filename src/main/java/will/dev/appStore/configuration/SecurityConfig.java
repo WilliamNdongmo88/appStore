@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/userAuth/activation").permitAll()
                         .requestMatchers("/userAuth/modified-password").permitAll()
                         .requestMatchers("/userAuth/new-password").permitAll()
+                        .requestMatchers("/userAuth/refresh-token").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->

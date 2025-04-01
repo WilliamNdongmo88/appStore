@@ -20,6 +20,10 @@ public class Jwt {
     private Boolean desactive;
     private Boolean expire;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @JoinColumn(name = "refresh-token")
+    private RefreshToken refreshToken;
+
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE})
     @JoinColumn(name = "user_id")
     private User user;

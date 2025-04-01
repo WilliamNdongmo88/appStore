@@ -18,5 +18,8 @@ public interface JwtRepository extends CrudRepository<Jwt, Long> {
     Stream<Jwt> findUser(String email);
 
     List<Jwt> deleteAllByExpireAndDesactive(boolean expire, boolean desactive);
+
+    @Query("SELECT j FROM Jwt j WHERE j.refreshToken.valeur=:refresh")
+    Optional<Jwt> findByRefreshToken(String refresh);
 }
 
