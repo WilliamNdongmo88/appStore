@@ -16,6 +16,7 @@ import will.dev.appStore.entites.RefreshToken;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.repository.JwtRepository;
 
+import java.nio.file.AccessDeniedException;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
@@ -32,7 +33,7 @@ import static will.dev.appStore.configuration.KeyGeneratorUtil.generateEncryptio
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    public static final String BEARER = "Bearer";
+    public static final String BEARER = "Bearer ";
     //private final String ENCRYPTION_KEY = "9710e6844f0bb2a4aa13608d1f207a15fb9f35c602582ac6ba3525daceba966d";
     private final String ENCRYPTION_KEY = generateEncryptionKey(32);
     private final UserService userService;
@@ -40,7 +41,9 @@ public class JwtService {
 
     public Map<String, String> generate(String username) {
         User user = (User) this.userService.loadUserByUsername(username);
-        //System.out.println("User : " + user);
+        if (user.getId() == null || user.getRole() == null) {
+            throw new RuntimeException("L'utilisateur n'est pas valide ou n'a pas de rôle");
+        }
         RefreshToken refreshToken = RefreshToken
                 .builder()
                 .valeur(UUID.randomUUID().toString())
@@ -59,7 +62,11 @@ public class JwtService {
                 .refreshToken(refreshToken)
                 .build();
         jwtMap.put("refresh", refreshToken.getValeur());
-        this.jwtRepository.save(jwt);// Save token inside the table Jwt into the data base
+        try {
+            this.jwtRepository.save(jwt); // Save token into the database
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la sauvegarde du token JWT : " + e.getMessage(), e);
+        }
         return jwtMap;
     }
 
@@ -76,7 +83,7 @@ public class JwtService {
 
     private Map<String, String> generateJwt(User user) {
         long currentTime = System.currentTimeMillis();
-        long expirationTime = currentTime + 60*1000;
+        long expirationTime = currentTime + 10*60*1000;
         Map<String, String> claims = Map.of("nom", user.getUsername(),
                 "email", user.getEmail()
         );
@@ -100,12 +107,12 @@ public class JwtService {
         return this.getClaims(token, Claims::getSubject);
     }
 
-    public Boolean isTokenExpred(String token) {
+    public Boolean isTokenExpred(String token) throws AccessDeniedException{
         try{
             Date expirationDate = this.getClaims(token, Claims::getExpiration);
             return expirationDate.before(new Date());
         }catch (RuntimeException e){
-            throw new RuntimeException("Le token a expiré"+e.getMessage());
+            throw new AccessDeniedException("Le token a expiré " + e.getMessage());
         }
 
     }
@@ -123,7 +130,7 @@ public class JwtService {
                 .getBody();
     }
 
-    public Jwt tokenByValue(String token) {
+    public Jwt tokenByValue(String token) throws RuntimeException{
         return this.jwtRepository.findByValeur(token).orElseThrow(()-> new RuntimeException("Token inconnu"));
     }
 

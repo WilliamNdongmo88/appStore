@@ -1,6 +1,7 @@
 package will.dev.appStore.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import will.dev.appStore.dto.OrderDTO;
 import will.dev.appStore.dto.OrderItemDTO;
 import will.dev.appStore.dto.OrderRequest;
@@ -48,18 +49,21 @@ public class OrderController {
     }
 
     //Read (Get OrderItem By Id)
+    @PreAuthorize("hasAnyAuthority('ADMIN_READ','MANAGER_READ','USER_READ')")
     @GetMapping("/{orderId}/items")
     public Stream<OrderItemDTO> getListOrderItemById(@PathVariable Long orderId){
         return orderItemService.getListOrderItemById(orderId);
     }
 
     // Update
+    @PreAuthorize("hasAnyAuthority('USER_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
         return ResponseEntity.ok(orderService.updateOrder(id, orderDetails));
     }
 
     // Delete
+    @PreAuthorize("hasAnyAuthority('USER_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

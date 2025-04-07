@@ -1,5 +1,6 @@
 package will.dev.appStore.dto;
 
+import will.dev.appStore.entites.Role;
 import will.dev.appStore.entites.User;
 
 import java.util.Date;
@@ -11,7 +12,7 @@ public record UserDTO(
         String otherNames,
         String lastName,
         //ImagePath userImagePath,
-        String role,
+        Role role,
         String email,
         String phone,
         String enterpriseName,

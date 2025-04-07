@@ -47,10 +47,6 @@ public class User implements UserDetails{
 
     @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false)
-    private String role;
-
     private Date emailVerified;
     private String authToken;
     private String emailVerifyToken;
@@ -77,6 +73,9 @@ public class User implements UserDetails{
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Role role;
+
     // Nouveau champ pour stocker uniquement le jour
     private LocalDate createDay;
 
@@ -88,7 +87,7 @@ public class User implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE: " + this.role));
+        return this.role.getLibelle().getAuthorities();
     }
 
     @Override

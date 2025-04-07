@@ -3,6 +3,7 @@ package will.dev.appStore.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,12 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import will.dev.appStore.dto.AuthentificationDto;
+import will.dev.appStore.entites.EmailValids;
+import will.dev.appStore.entites.Role;
+import will.dev.appStore.enums.TypeDeRole;
+import will.dev.appStore.repository.EmailValidsRepository;
 import will.dev.appStore.repository.UserRepository;
 import will.dev.appStore.entites.User;
 import will.dev.appStore.service.JwtService;
 import will.dev.appStore.service.UserService;
 import will.dev.appStore.service.ValidationService;
 
+import javax.naming.AuthenticationException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,6 +36,7 @@ public class RegistrationLoginController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtService jwtService;
+    private final EmailValidsRepository emailValidsRepository;
 
     @PostMapping(path = "register")
     public ResponseEntity<?> userRegister(@RequestBody User user){
@@ -38,6 +45,35 @@ public class RegistrationLoginController {
             return ResponseEntity.badRequest().body("Username already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getEmail().contains(".admin")){
+            Optional<EmailValids> emailValids = Optional.ofNullable(this.emailValidsRepository.findByEmail(user.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Email non valid")));
+            System.out.println("Email: " + emailValids);
+            if (emailValids.isPresent()){
+                Role userRole = new Role();
+                userRole.setLibelle(TypeDeRole.ADMIN);
+                user.setRole(userRole);
+                user = this.userRepository.save(user);
+                this.validationService.enregistrer(user);//Utiliser pour activer un compte utilisateur
+            }
+        } else if (user.getEmail().contains(".manager")) {
+            Optional<EmailValids> emailValids = Optional.ofNullable(this.emailValidsRepository.findByEmail(user.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Email non valid")));
+            System.out.println("Email: " + emailValids);
+            if (emailValids.isPresent()){
+                Role userRole = new Role();
+                userRole.setLibelle(TypeDeRole.MANAGER);
+                user.setRole(userRole);
+                user = this.userRepository.save(user);
+                this.validationService.enregistrer(user);//Utiliser pour activer un compte utilisateur
+            }
+        }else {
+            Role userRole = new Role();
+            userRole.setLibelle(TypeDeRole.USER);
+            user.setRole(userRole);
+            user = this.userRepository.save(user);
+            this.validationService.enregistrer(user);//Utiliser pour activer un compte utilisateur
+        }
         this.validationService.enregistrer(user);
         return ResponseEntity.ok(userRepository.save(user));
     }
@@ -46,6 +82,12 @@ public class RegistrationLoginController {
     @PostMapping("activation")
     public ResponseEntity<?> activation(@RequestBody Map<String, String> activation){
         return this.userService.activation(activation);
+    }
+
+    //New Activation Code
+    @PostMapping("new-activation-code")
+    public void newActivationCode(@RequestBody Map<String, String> param){
+        this.userService.modifiedPassword(param);
     }
 
     //Modifier Password
@@ -61,7 +103,7 @@ public class RegistrationLoginController {
     }
 
     @PostMapping(path = "login")
-    public Map<String, String> userLogin(@RequestBody AuthentificationDto authDto) {
+    public Map<String, String> userLogin(@RequestBody AuthentificationDto authDto) throws BadCredentialsException {
         try {
             // Authentification de l'utilisateur
             Authentication authenticate = authenticationManager.authenticate(
@@ -80,7 +122,7 @@ public class RegistrationLoginController {
                 throw new RuntimeException("Veuillez activer votre compte avant de vous connecter");
             }
         }catch(Exception ex){
-            throw new RuntimeException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
     }
 

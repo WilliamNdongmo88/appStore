@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,7 @@ import will.dev.appStore.service.UserService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserService userService;
@@ -26,24 +28,11 @@ public class SecurityConfig {
         return http
                 .csrf(csrf ->csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        /*.requestMatchers("/","/userAuth/login","/product-unit/{id}",
-                                        "/user/{id}","/category/{id}","/subCategory/{id}","/categoryProduct/{id}",
-                                        "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
-                                        "/brand/{id}","/discount/{id}","/product/{id}","/category-products/{id}",
-                                        "/product-variation/{id}","/product-variation-value/{id}","/product-reviews/{id}",
-                                        "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}",
-                                        "/product-images/{id}","/orders/{id}","/order-items/{id}","/recherche/search",
-                                        "/product-descriptions/{id}","/product-features/{id}","/favorites/{id}",
-                                        "/product-images/{id}","/recherche/categories/{categoryTitle}/subcategories",
-                                        "/recherche/subcategories/{subCategoryTitle}/products",
-                                        "/product/subcategories/{subCategoryTitle}/products",
-                                        "/recherche/prefix/subcategories/{subCategoryPrefix}/products",
-                                        "/product-images/{id}","/orders/order-key/{orderKey}","/order-item/{id}","/delivery-modes/{id}",
-                                "/payment-modes/{id}","/payments/{id}","/addresses/{id}","/orders/{orderId}/items"
-                                ).permitAll()*/
                         .requestMatchers("/userAuth/register").permitAll()
-                        .requestMatchers("/userAuth/login").permitAll()
                         .requestMatchers("/userAuth/activation").permitAll()
+                        .requestMatchers("/userAuth/new-activation-code").permitAll()
+                        .requestMatchers("/userAuth/login").permitAll()
+                        //.requestMatchers("user/all_user").hasAnyRole("ADMIN","MANAGER")
                         .requestMatchers("/userAuth/modified-password").permitAll()
                         .requestMatchers("/userAuth/new-password").permitAll()
                         .requestMatchers("/userAuth/refresh-token").permitAll()
